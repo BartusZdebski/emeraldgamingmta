@@ -100,3 +100,117 @@ function removeNPC(thePlayer, commandName, npcid)
 end
 addCommandHandler("delnpc", removeNPC)
 addCommandHandler("deletenpc", removeNPC)
+
+-- /nearbynpcs - by Bartuszdebski (20/08/19) [Trial Admin]
+local function showNearbyNPCs(thePlayer, commandName)
+	if exports.global:isPlayerTrialAdmin(thePlayer) then
+		local playerX,playerY,_ = getElementPosition(thePlayer)
+
+		for _,thePed in ipairs(getElementsByType("ped")) do
+			if(getElementData(thePed, "npc_id")) then
+				local pedX,pedY,_ = getElementPosition(thePed)
+				if(getDistanceBetweenPoints2D(playerX, playerY, pedX, pedY) < 20.0) and (getElementInterior(thePlayer) == getElementInterior(thePed)) and (getElementDimension(thePlayer) == getElementDimension(thePlayer)) then
+					outputChatBox("Found nearby npc " .. getElementData(thePed, "npc:name") .. " with id: " .. getElementData(thePed, "npc:id") .. ", created by: " .. getElementData(thePed, "npc:createdBy"), thePlayer, 75, 230, 10)
+				end
+			end
+		end
+	end
+end
+addCommandHandler("nearbynpcs", showNearbyNPCs)
+
+-- /gotonpc - By Bartuszdebski (20/08/19) [Trial Admin]
+local function goToNPC(thePlayer, commandName, targetID)
+	if exports.global:isPlayerTrialAdmin(thePlayer) then
+		if not targetID then return outputChatBox("SYNTAX: /" .. commandName .. " [NPC ID]", thePlayer, 75, 230, 10) end
+
+		local thePed = exports.data:getElement("ped", tonumber(targetID))
+
+		if(thePed) then
+			local pedX,pedY,pedZ = getElementPosition(thePed)				
+			setElementFrozen(thePlayer, true)
+			setElementDimension(thePlayer, getElementDimension(thePed))
+			getElementInterior(thePlayer, getElementInterior(thePed))
+			setElementPosition(thePlayer, pedX+0.5, pedY+0.5, pedZ)
+
+			setTimer(function()
+			    setElementFrozen(thePlayer, false) -- just to prevent bugging when TPing to custom interiors, maybe not necessary
+			end, 1500, 0)
+		else
+			outputChatBox("ERROR: An NPC with that ID does not exist!", thePlayer, 255, 0, 0)
+		end
+
+	end
+end
+addCommandHandler("gotonpc", goToNPC)
+
+-- /editnpc - By Bartuszdebski (20/08/19) [Trial Admin]
+local function editNPC(thePlayer, commandName, targetID, arg2, ...)
+	if exports.global:isPlayerTrialAdmin(thePlayer) then
+		local arg = {...}
+		local legend = "type, name"
+
+		if not targetID then return outputChatBox("SYNTAX: /" .. commandName .. " [NPC ID] [".. legend .."]", thePlayer, 75, 230, 10) end
+
+		local thePed = exports.data:getElement("ped", tonumber(targetID))
+
+		if not thePed then return outputChatBox("ERROR: An NPC with that ID does not exist!", thePlayer, 255, 0, 0) end
+
+		arg2 = string.lower(tostring(arg2))
+
+		if (arg2 == "type") then
+			local _type = table.concat({...}, " ")
+			if _type == "" then
+				return outputChatBox("SYNTAX: /" .. commandName .. " [NPC ID] type [New Type]", thePlayer, 75, 230, 10) end
+
+			blackhawk:setElementDataEx(thePed, "npc:type", tonumber(_type), true)
+
+			reloadNPC(tonumber(targetID))
+
+			outputChatBox("You have changed NPC #" .. targetID .. "'s type to '" .. tostring(_type) .. "'.", thePlayer, 0, 255, 0)
+
+		elseif(arg2 == "name") then
+			if table.concat({...}, " ") == "" then
+				return outputChatBox("SYNTAX: /" .. commandName .. " [NPC ID] name [New Name]", thePlayer, 75, 230, 10) end
+
+			local name = table.concat({...}, " ")
+			if string.len(name) > 25 then
+				outputChatBox("ERROR: The NPC name cannot be longer than 25 characters.", thePlayer, 255, 0, 0)
+				return false
+			end
+
+			blackhawk:setElementDataEx(thePed, "npc:name", tostring(name), true)
+			blackhawk:setElementDataEx(thePed, "name", tostring(name), true)
+
+			reloadNPC(tonumber(targetID))
+
+			local thePlayerName = exports.global:getStaffTitle(thePlayer)
+
+			outputChatBox("You have changed NPC #" .. targetID .. "'s name to '" .. tostring(name) .. "'.", thePlayer, 0, 255, 0)
+			exports.global:sendMessageToManagers("[INFO] " .. thePlayerName .. " changed NPC #" .. targetID .. "'s name to " .. name)
+		end
+	end
+end
+addCommandHandler("editped", editNPC)
+addCommandHandler("editnpc", editNPC)
+
+-- /infonpc - By Bartuszdebski (20/08/19) [Trial Admin]
+local function infoNPC(thePlayer, commandName, targetID)	
+	if exports.global:isPlayerTrialAdmin(thePlayer) then
+		if not (targetID) then return outputChatBox("SYNTAX: /" .. commandName .. " [NPC ID]", thePlayer, 75, 230, 10) end
+
+		local thePed = exports.data:getElement("ped", tonumber(targetID))
+
+		if(thePed) then
+			outputChatBox("[======== " .. getElementData(thePed, "npc:name") .. " ========]")
+			outputChatBox("    ID:    " .. getElementData(thePed, "npc:id"))
+			outputChatBox("    INT:  " .. getElementInterior(thePed))
+			outputChatBox("    VW:   " .. getElementDimension(thePed))
+			outputChatBox("    Type: " .. getElementData(thePed, "npc:type"))
+			outputChatBox("    Created by: " .. getElementData(thePed, "npc:createdBy"))
+		else
+			return outputChatBox("ERROR: An NPC with that ID does not exist!", thePlayer, 255, 0, 0)
+		end
+	end
+end
+addCommandHandler("infonpc", infoNPC)
+addCommandHandler("npcinfo", infoNPC)
