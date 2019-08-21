@@ -201,12 +201,12 @@ local function infoNPC(thePlayer, commandName, targetID)
 		local thePed = exports.data:getElement("ped", tonumber(targetID))
 
 		if(thePed) then
-			outputChatBox("[======== " .. getElementData(thePed, "npc:name") .. " ========]")
-			outputChatBox("    ID:    " .. getElementData(thePed, "npc:id"))
-			outputChatBox("    INT:  " .. getElementInterior(thePed))
-			outputChatBox("    VW:   " .. getElementDimension(thePed))
-			outputChatBox("    Type: " .. getElementData(thePed, "npc:type"))
-			outputChatBox("    Created by: " .. getElementData(thePed, "npc:createdBy"))
+			outputChatBox("[======== " .. getElementData(thePed, "npc:name") .. " ========]", thePlayer, 75, 230, 10)
+			outputChatBox("    ID:    " .. getElementData(thePed, "npc:id"), thePlayer, 75, 230, 10)
+			outputChatBox("    INT:  " .. getElementInterior(thePed), thePlayer, 75, 230, 10)
+			outputChatBox("    VW:   " .. getElementDimension(thePed), thePlayer, 75, 230, 10)
+			outputChatBox("    Type: " .. getElementData(thePed, "npc:type"), thePlayer, 75, 230, 10)
+			outputChatBox("    Created by: " .. getElementData(thePed, "npc:createdBy"), thePlayer, 75, 230, 10)
 		else
 			return outputChatBox("ERROR: An NPC with that ID does not exist!", thePlayer, 255, 0, 0)
 		end
