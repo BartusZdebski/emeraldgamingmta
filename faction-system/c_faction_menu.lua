@@ -40,10 +40,28 @@ function showFactionMenu(animateIn, factionElement, menuData, memberNames, membe
 		-- Logo and abbreviation.
 		-- Set faction logo with URL obtained from menuData[2] @requires faction-system logos.
 		local logoPos = ":assets/images/logoIcon.png"
-		if factionID == 1 then logoPos = ":dev/pd.png"
+		--[[if factionID == 1 then logoPos = ":dev/pd.png"
 			elseif factionID == 2 then logoPos = ":dev/fd.png"
 			elseif factionID == 2 then logoPos = ":dev/gov.png"
+		end]]
+
+		if(string.len(menuData[2]) > 7) then
+			local words = {}
+			for w in (menuData[2]):gmatch("[^/]+") do 
+				table.insert(words, w) -- that's like cutting grass with scissors btw
+			end
+
+			outputChatBox(words[3])
+
+			local logo = ":assets/images/" .. words[3]
+
+			if fileExists(logo) then
+				logoPos = logo
+			else
+				triggerServerEvent("faction:downloadLogo", localPlayer, localPlayer, menuData[2])
+			end
 		end
+
 		factionLogoImage = emGUI:dxCreateImage(0.83, 0.1, 0.13, 0.21, logoPos, true, factionMenuGUI)
 
 		local facAbbr = getElementData(factionElement, "faction:abbreviation") or ""
@@ -723,6 +741,14 @@ function showLogoEditorGUI()
 			local logoURL = emGUI:dxGetText(logoURLInput) or ""
 
 			--trigg server event
+
+			if(string.match(logoURL, ".png")) or (string.match(logoURL, "http")) or (string.match(logoURL, ".jpg")) or (string.match(logoURL, ".imgur")) then
+
+				triggerServerEvent("faction:changeLogo", localPlayer, logoURL)
+
+			else 
+				return outputChatBox("ERROR: That doesn't look like an Image Link!", 255, 0, 0)
+			end
 
 			emGUI:dxMoveTo(logoEditorGUI, 0.26, 1, true, false, "OutQuad", 250)
 			setTimer(function()
@@ -1638,3 +1664,13 @@ function showVehiclePermissionEditor(groupData, vehicleData, animateIn)
 end
 addEvent("faction:menu:showVehiclePermissionEditor", true)
 addEventHandler("faction:menu:showVehiclePermissionEditor", root, showVehiclePermissionEditor)
+
+addEvent( "onClientGotImage", true )
+addEventHandler( "onClientGotImage", root,
+	function(data, fileName)
+		local f = fileCreate(":assets/images/" .. fileName)  
+		fileWrite(f, data) 
+		fileClose(f)  
+		f = nil
+	end
+)

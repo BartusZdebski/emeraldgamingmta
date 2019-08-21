@@ -61,9 +61,23 @@ function showFactionSelectorMenu(dataTable)
 			[2] = ":dev/fd.png",
 			[3] = ":dev/gov.png",
 		}
-		if dataTable[1] and logoPos[dataTable[1][1]] then logos[1] = logoPos[dataTable[1][1]] end
-		if dataTable[2] and logoPos[dataTable[2][1]] then logos[2] = logoPos[dataTable[2][1]] end
-		if dataTable[3] and logoPos[dataTable[3][1]] then logos[3] = logoPos[dataTable[3][1]] end
+
+		for i,v in ipairs(dataTable) do
+			if(string.len(v[3]) > 7) then
+				local words = {}
+				for w in (v[3]):gmatch("[^/]+") do 
+				    table.insert(words, w)  -- that's like cutting grass with scissors btw
+				end
+
+				local logo = ":assets/images/" .. words[3]
+
+				if fileExists(logo) then
+					logos[i] = logo
+				else
+					triggerServerEvent("faction:downloadLogo", localPlayer, localPlayer, v[3])
+				end
+			end
+		end
 
 		if not dataTable[1] then dataTable[1] = {0, "Vacant", false} end
 		factionLogos[1] = emGUI:dxCreateImage(0.08, 0.07, 0.19, 0.64, logos[1], true, factionSelectorGUI)
