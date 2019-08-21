@@ -14,7 +14,8 @@ ______ _____ _      ___________ _       _____   __
 | |\ \\ \_/ / |____| |___| |   | |____| | | || |
 \_| \_|\___/\_____/\____/\_|   \_____/\_| |_/\_/
 
-Copyright of the Emerald Gaming Development Team, do not distribute - All rights reserved. ]]																																															v = "4F5BB59224F5B07F019D2ECBBA1B7266" -- For maximum security, we recommend you change this string to something unique to your community and keep secure.
+Copyright of the Emerald Gaming Development Team, do not distribute - All rights reserved. ]]																																															
+v = "4F5BB59224F5B07F019D2ECBBA1B7266" -- For maximum security, we recommend you change this string to something unique to your community and keep secure.
 
 mysql = exports.mysql
 blackhawk = exports.blackhawk -- Shorten down exports.blackhawk to just 'blackhawk'
