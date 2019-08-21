@@ -629,3 +629,37 @@ function saveVehicleGroupPermissions(vehicleID, groupPerms)
 end
 addEvent("faction:menu:saveVehicleGroupPermissions", true)
 addEventHandler("faction:menu:saveVehicleGroupPermissions", root, saveVehicleGroupPermissions)
+
+function downloadFactionLogo(thePlayer, newLogoURL)
+	fetchRemote(newLogoURL, applyFactionLogo, "", false, source, newLogoURL)
+end
+addEvent("faction:downloadLogo", true)
+addEventHandler("faction:downloadLogo", root, downloadFactionLogo)
+
+function applyFactionLogo(response, errno, thePlayer, URL)
+	if errno == 0 then		
+		local words = {}
+		for w in (URL):gmatch("[^/]+") do 
+		    table.insert(words, w)  -- that's like cutting grass with scissors btw
+		end
+
+		triggerClientEvent(thePlayer, "onClientGotImage", resourceRoot, response, words[3])
+	end
+end
+
+function changeFactionLogo(newLogoURL)
+	local factionID = getElementData(source, "character:activefaction")
+	local theFaction = exports.data:getElement("team", factionID)
+
+	if (newLogoURL) then 
+		if theFaction then
+			blackhawk:setElementDataEx(theFaction, "faction:logo", newLogoURL, false) -- obviously
+
+			local query = exports.mysql:Execute("UPDATE `factions` SET `logo` = (?) WHERE `id` = (?);", newLogoURL, factionID)
+
+			downloadFactionLogo(source, newLogoURL) -- download faction logo for the player that set it
+    	end
+    end 
+end
+addEvent("faction:changeLogo", true)
+addEventHandler("faction:changeLogo", root, changeFactionLogo)
