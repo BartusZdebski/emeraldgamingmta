@@ -68,6 +68,7 @@ function loadNPC(npcID)
 		blackhawk:setElementDataEx(theNPC, "name", tostring(npcData.name), true)
 		blackhawk:setElementDataEx(theNPC, "npc:skin", npcData.skin, true)
 		blackhawk:setElementDataEx(theNPC, "npc:type", npcData.type, true)
+		blackhawk:setElementDataEx(theNPC, "npc:createdBy", npcData.createdby, true)
 
 		-- Set NPC dimension and interior.
 		setElementDimension(theNPC, npcData.dimension)
@@ -80,17 +81,17 @@ function loadNPC(npcID)
 end
 
 function saveNPC(npcID)
-	if not tonumber(interiorID) then exports.global:outputDebug("@saveNPC: npcID not provided or is not a numerical value.") return false end
+	if not tonumber(npcID) then exports.global:outputDebug("@saveNPC: npcID not provided or is not a numerical value.") return false end
 
 	-- Check if the NPC element exists.
-	local theNPC = exports.data:getElement("npc", npcID)
+	local theNPC = exports.data:getElement("ped", npcID)
 	if not (theNPC) then
 		exports.global:outputDebug("@saveNPC: Attempted to save NPC #" .. npcID .. " though NPC element does not exist.")
 		return false
 	end
 
 	-- If the NPC being saved doesn't exist in the database.
-	local npcData = exports.mysql:QueryString("SELECT `name` FROM `npcs` WHERE `id` = (?);", interiorID)
+	local npcData = exports.mysql:QueryString("SELECT `name` FROM `npcs` WHERE `id` = (?);", npcID)
 	if not (npcData) then
 		exports.global:outputDebug("@saveNPC: Attempted to save NPC #" .. npcID .. " though NPC does not exist in database.")
 		return false
@@ -106,6 +107,8 @@ function saveNPC(npcID)
 	local npcSkin = getElementModel(theNPC)
 	local npcType = getElementData(theNPC, "npc:type")
 
+	local locationString = x..","..y..","..z..","..rz
+
 	local query = exports.mysql:Execute(
 		"UPDATE `npcs` SET `name` = (?), `skin` = (?), `type` = (?), `location` = (?), `dimension` = (?), `interior` = (?) WHERE `id` = (?);",
 		npcName, npcSkin, npcType, locationString, dimension, interior, npcID
@@ -115,11 +118,11 @@ function saveNPC(npcID)
 end
 
 function reloadNPC(npcID)
-	if not tonumber(interiorID) then exports.global:outputDebug("@reloadNPC: npcID not provided or is not a numerical value.") return false end
+	if not tonumber(npcID) then exports.global:outputDebug("@reloadNPC: npcID not provided or is not a numerical value.") return false end
 	npcID = tonumber(npcID)
 
 	-- Check to see if the NPC element exists.
-	local theNPC = exports.data:getElement("npc", npcID)
+	local theNPC = exports.data:getElement("ped", tonumber(npcID))
 
 	if (theNPC) then
 		saveNPC(npcID)
@@ -129,3 +132,18 @@ function reloadNPC(npcID)
 	local loaded = loadNPC(npcID)
 	return loaded, "Failed to load NPC."
 end
+
+-- Loads all NPCs from database onResourceStart.
+function loadAllNPCs()
+	local allNPCs = exports.mysql:Query("SELECT * FROM `npcs`;")
+	if not (allNPCs) or not (allNPCs[1]) then return end
+
+	local delay = 50
+	for index, npc in ipairs(allNPCs) do
+		setTimer(loadNPC, delay, 1, tonumber(npc.id))
+		delay = delay + 50
+	end
+
+	exports.global:outputDebug("Loading " .. #allNPCs .. " NPCs, estimated time to load: " .. (delay/1000) .. " seconds.", 3)
+end
+addEventHandler("onResourceStart", resourceRoot, loadAllNPCs)
