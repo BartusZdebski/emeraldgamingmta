@@ -64,12 +64,7 @@ function showFactionSelectorMenu(dataTable)
 
 		for i,v in ipairs(dataTable) do
 			if(string.len(v[3]) > 7) then
-				local words = {}
-				for w in (v[3]):gmatch("[^/]+") do 
-				    table.insert(words, w)  -- that's like cutting grass with scissors btw
-				end
-
-				local logo = ":assets/images/" .. words[3]
+				local logo = ":assets/images/" .. split(v[3], "/")[3]
 
 				if fileExists(logo) then
 					logos[i] = logo

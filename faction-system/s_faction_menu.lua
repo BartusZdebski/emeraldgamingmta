@@ -637,13 +637,8 @@ addEvent("faction:downloadLogo", true)
 addEventHandler("faction:downloadLogo", root, downloadFactionLogo)
 
 function applyFactionLogo(response, errno, thePlayer, URL)
-	if errno == 0 then		
-		local words = {}
-		for w in (URL):gmatch("[^/]+") do 
-		    table.insert(words, w)  -- that's like cutting grass with scissors btw
-		end
-
-		triggerClientEvent(thePlayer, "onClientGotImage", resourceRoot, response, words[3])
+	if errno == 0 then
+		triggerClientEvent(thePlayer, "onClientGotImage", resourceRoot, response, split(URL, "/")[3])
 	end
 end
 

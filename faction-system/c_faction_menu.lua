@@ -46,14 +46,7 @@ function showFactionMenu(animateIn, factionElement, menuData, memberNames, membe
 		end]]
 
 		if(string.len(menuData[2]) > 7) then
-			local words = {}
-			for w in (menuData[2]):gmatch("[^/]+") do 
-				table.insert(words, w) -- that's like cutting grass with scissors btw
-			end
-
-			outputChatBox(words[3])
-
-			local logo = ":assets/images/" .. words[3]
+			local logo = ":assets/images/" .. split(menuData[2], "/")[3]
 
 			if fileExists(logo) then
 				logoPos = logo
